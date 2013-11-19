@@ -4,9 +4,12 @@
 Car::Car(void)
 {
 
-	x = 300;
+	x = 350;
 	y = 0;
 	z = 140;
+
+	unghi = 0;
+	pasX = pasY = pasZ = 0;
 
 	latime = 80;
 	inaltime = 50;
@@ -99,9 +102,30 @@ Car::Car(void)
 	}
 
 	roataStgSpate = new Object3D(vertices, faces, Color(0,1,0), true);
+
+	// varfurile rotii stanga spate
+	vertices.clear();
+	centruRoataY = y;
+	centruRoataZ = z + 200;
+	contour.clear();
+	faces.clear();
+	for (float u = 0; u < 2 * PI; u = u + PI/360) {
+		float yy = centruRoataY + razaRoata * sin(u);
+		float zz = centruRoataZ + razaRoata * cos(u);
+		vertices.push_back(new Point3D(x - 1, yy, zz));
+		vertices.push_back(new Point3D(x - 15, yy, zz));
+		if (vertices.size() > 3) {
+			for (int k = vertices.size() - 4; k < vertices.size(); k++) {
+				contour.push_back(k);
+			}
+			faces.push_back(new Face(contour));
+			contour.clear();
+		}
+	}
+
+	roataStgFata = new Object3D(vertices, faces, Color(0,1,0), true);
 	
 	// varfurile rotii dreapta spate
-	// TODO Clear
 	vertices.clear();
 	centruRoataY = y;
 	centruRoataZ = z + 40;
@@ -123,6 +147,28 @@ Car::Car(void)
 
 	roataDrSpate = new Object3D(vertices, faces, Color(0,1,0), true);
 
+	// varfurile rotii dreapta fata
+	vertices.clear();
+	centruRoataY = y;
+	centruRoataZ = z + 200;
+	contour.clear();
+	faces.clear();
+	for (float u = 0; u < 2 * PI; u = u + PI/360) {
+		float yy = centruRoataY + razaRoata * sin(u);
+		float zz = centruRoataZ + razaRoata * cos(u);
+		vertices.push_back(new Point3D(x + latime + 1, yy, zz));
+		vertices.push_back(new Point3D(x + latime + 15, yy, zz));
+		if (vertices.size() > 3) {
+			for (int k = vertices.size() - 4; k < vertices.size(); k++) {
+				contour.push_back(k);
+			}
+			faces.push_back(new Face(contour));
+			contour.clear();
+		}
+	}
+
+	roataDrFata = new Object3D(vertices, faces, Color(0,1,0), true);
+
 }
 
 void Car::addObject3D(Visual2D* playfield) {
@@ -130,31 +176,65 @@ void Car::addObject3D(Visual2D* playfield) {
 	DrawingWindow::addObject3D_to_Visual2D(car, playfield);
 	DrawingWindow::addObject3D_to_Visual2D(roataStgSpate, playfield);
 	DrawingWindow::addObject3D_to_Visual2D(roataDrSpate, playfield);
+	DrawingWindow::addObject3D_to_Visual2D(roataDrFata, playfield);
+	DrawingWindow::addObject3D_to_Visual2D(roataStgFata, playfield);
 
 }
 
 void Car::perspectiveProject() {
 
+	Transform3D::loadIdentityModelMatrix();
 	Transform3D::loadIdentityProjectionMatrix();
-//	Transform3D::loadIdentityModelMatrix();
-//	Transform3D::translateMatrix(-(x + latime/2), -(y + inaltime/2), -(z + lungime/2));
-//	Transform3D::rotateMatrixOz(PI/5);
-//	Transform3D::translateMatrix((x + latime/2), (y + inaltime/2), (z + lungime/2));
-//	Transform3D::translateMatrix(10,10,10);
-	Transform3D::perspectiveProjectionMatrix(x + latime/2 + 200, y + inaltime + 2000, -(z + lungime + 5000));
+
+	Transform3D::translateMatrix(-(x + latime / 2), -(y + inaltime / 2), -(z + lungime / 2));
+	Transform3D::rotateMatrixOy(unghi);
+	Transform3D::translateMatrix((x + latime / 2), (y + inaltime / 2), (z + lungime / 2));
+
+	Transform3D::translateMatrix(pasX, pasY, pasZ);
+
+	Transform3D::perspectiveProjectionMatrix(x - pasX + latime/2, y + inaltime + 2000, -(z + lungime + 5000));
 	Transform3D::applyTransform(car);
 	Transform3D::applyTransform(roataStgSpate);
 	Transform3D::applyTransform(roataDrSpate);
+	Transform3D::applyTransform(roataDrFata);
+	Transform3D::applyTransform(roataStgFata);
 
 }
 
 void Car::translate(float x, float y, float z) {
-	
-	Transform3D::loadIdentityModelMatrix();
-	Transform3D::translateMatrix(x, y, z);
-	Transform3D::applyTransform(car);
-	Transform3D::applyTransform(roataStgSpate);
-	Transform3D::applyTransform(roataDrSpate);
+
+	pasX += x;
+	pasY += y;
+	pasZ += z;
+
+}
+
+void Car::steerLeft() {
+
+	if (unghi > PI / 4)
+		return;
+
+	else
+		unghi += PI / 180;
+
+}
+
+void Car::steerRight() {
+
+	if (unghi < - PI / 4)
+		return;
+	else
+		unghi -= PI / 180;
+
+}
+
+void Car::move(int speed)
+{
+
+	while (speed--)
+	{
+		pasX -= sin(unghi);
+	}
 
 }
 

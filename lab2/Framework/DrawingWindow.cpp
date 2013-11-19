@@ -39,7 +39,9 @@ DrawingWindow::DrawingWindow(int argc, char** argv,int _width, int _height, int 
 	glutTimerFunc(0, timerFunction, 0);
 	
 	glutKeyboardFunc(keyboardFunction); //functia apelata la apasarea unei taste
+	glutKeyboardUpFunc(keyboardUpFunction); // functia apelata la ridicarea unei taste apasate
 	glutSpecialFunc(specialFunction); //functia apelata la apasarea unei taste speciale
+	glutSpecialUpFunc(specialUpFunction); // functia apelata la ridicarea unei taste speciale
 	glutMouseFunc(mouseFunction); //functia apelata la click de mouse
 
 	glClearColor(1,1,1,1);  //afiseaza fondul ferestrei aplicatiei in alb
@@ -395,10 +397,20 @@ void DrawingWindow::keyboardFunction(unsigned char key, int x, int y)
 	onKey(key);
 }
 
+void DrawingWindow::keyboardUpFunction(unsigned char key, int x, int y)
+{
+	upKey(key);
+}
+
 
 void DrawingWindow::specialFunction(int key, int x, int y)
 {
 	onKey(key);
+}
+
+void DrawingWindow::specialUpFunction(int key, int x, int y)
+{
+	upKey(key);
 }
 
 

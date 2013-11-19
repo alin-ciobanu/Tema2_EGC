@@ -1,12 +1,18 @@
 #include "Obstacle.h"
 
 
-Obstacle::Obstacle(int i)
+Obstacle::Obstacle(int x, int y, int z, int i, float zMasina)
 {
 
-	x = 100;
-	y = 0;
-	z = 1000;
+	this->x = x;
+	this->y = y;
+	this->z = z;
+
+	pasX = pasY = pasZ = 0;
+	centerX = 350;
+
+	this->zMasina = zMasina;
+	distance = abs(zMasina - (z + pasZ));
 
 	laturaPiramida = 100;
 
@@ -21,7 +27,7 @@ Obstacle::Obstacle(int i)
 		vertices.push_back(new Point3D(x + laturaPiramida,y,z));
 		vertices.push_back(new Point3D(x + laturaPiramida / 2, y, z + (sqrt(3)/2)*laturaPiramida));
 		//varful de sus
-		float inaltime = laturaPiramida;
+		inaltime = laturaPiramida;
 		vertices.push_back(new Point3D(x + laturaPiramida / 2, y + inaltime, z + (sqrt(3)/6)*laturaPiramida));
 
 		//cele 6 fete
@@ -67,7 +73,7 @@ Obstacle::Obstacle(int i)
 		vertices.push_back(new Point3D(x + laturaPiramida,y,z + laturaPiramida));
 		vertices.push_back(new Point3D(x,y,z + laturaPiramida));
 		//varful de sus
-		float inaltime = laturaPiramida;
+		inaltime = laturaPiramida;
 		vertices.push_back(new Point3D(x + laturaPiramida / 2, y + inaltime, z + laturaPiramida / 2));
 
 		//cele 6 fete
@@ -118,17 +124,43 @@ void Obstacle::addObject3D(Visual2D* playfield) {
 
 void Obstacle::perspectiveProject() {
 
+	Transform3D::loadIdentityModelMatrix();
 	Transform3D::loadIdentityProjectionMatrix();
-	Transform3D::perspectiveProjectionMatrix(x + laturaPiramida + 200, y + laturaPiramida + 2000, -(z + laturaPiramida + 5000));
+	Transform3D::translateMatrix(-(x + laturaPiramida / 2), - (y + inaltime / 2), -(z + (sqrt(3)/4) * laturaPiramida));
+	if (distance > 700)
+		scale = 700 / distance;
+	else
+		scale = 1;
+	Transform3D::scaleMatrix(scale, scale, scale);
+	Transform3D::translateMatrix((x + laturaPiramida / 2), (y + inaltime / 2), z + (sqrt(3)/4) * laturaPiramida);
+	Transform3D::translateMatrix(pasX, pasY, pasZ);
+
+	Transform3D::loadIdentityProjectionMatrix();
+	Transform3D::perspectiveProjectionMatrix(centerX + laturaPiramida / 2, y + laturaPiramida + 2000, -(z + laturaPiramida + 5000));
 	Transform3D::applyTransform(obstacle);
 
 }
 
 void Obstacle::translate(float x, float y, float z) {
-	
-	Transform3D::loadIdentityModelMatrix();
-	Transform3D::translateMatrix(x, y, z);
-	Transform3D::applyTransform(obstacle);
+
+	pasX += x;
+	pasY += y;
+	pasZ += z;
+
+}
+
+void Obstacle::move (int speed) {
+
+	if (z + pasZ < - 4 * laturaPiramida)
+		return;
+
+	while (speed--)
+	{
+
+		distance = abs(zMasina - (z + pasZ));
+		pasZ--;
+
+	}
 
 }
 

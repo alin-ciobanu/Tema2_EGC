@@ -15,6 +15,7 @@ class Car
 {
 public:
 	float x, y, z;
+	float pasX, pasY, pasZ;
 	float lungime;
 	float latime;
 	float inaltime;
@@ -24,11 +25,15 @@ public:
 	Object3D *roataStgSpate;
 	Object3D *roataDrSpate;
 	float razaRoata;
+	float unghi;
 public:
 	Car(void);
 	void addObject3D(Visual2D*);
 	void perspectiveProject();
 	void translate(float, float, float);
+	void steerLeft();
+	void steerRight();
+	void move(int);
 	~Car(void);
 };
 
