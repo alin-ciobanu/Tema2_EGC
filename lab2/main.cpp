@@ -26,6 +26,7 @@ int frameNo = 0;
 
 int speed;
 int speedMAX = 50;
+int oprire_inertie = 0;
 
 Car *car;
 vector<Obstacle*> obstacles;
@@ -123,13 +124,28 @@ void DrawingWindow::onIdle()
 
 	if (keyUpIsPressed)
 	{
-		speed += 1;
+		speed ++;
 		if (speed > speedMAX)
 			speed = speedMAX;
 	}
 	if (keyDownIsPressed)
 	{
 		speed -= 2;
+		if (speed < 0)
+			speed = 0;
+	}
+
+	if (!keyDownIsPressed && !keyUpIsPressed)
+	{
+		if (oprire_inertie > 10)
+		{
+			oprire_inertie = 0;
+			speed--;
+		}
+		else
+		{
+			oprire_inertie++;
+		}
 		if (speed < 0)
 			speed = 0;
 	}
