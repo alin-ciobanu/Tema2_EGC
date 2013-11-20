@@ -128,7 +128,7 @@ void DrawingWindow::onIdle()
 			{
 
 				Text* lose;
-				lose = new Text("Game over.", Point2D(200, 660), colorText, GLUT_BITMAP_9_BY_15);
+				lose = new Text("Game over.", Point2D(350, 660), colorText, GLUT_BITMAP_9_BY_15);
 				addText_to_Visual2D(lose, v2d_scoreboard);
 
 				return;
