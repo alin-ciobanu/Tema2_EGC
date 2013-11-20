@@ -33,7 +33,8 @@ public:
 	void translate(float, float, float);
 	void steerLeft();
 	void steerRight();
-	void move(int);
+	void move(int, float, float);
+	bool hitsObstacle(float, float, float);
 	~Car(void);
 };
 

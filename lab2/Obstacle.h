@@ -23,10 +23,8 @@ public:
 	float distance;
 	float zMasina;
 public:
-	Obstacle(int, int, int, int, float);
-	void addObject3D(Visual2D*);
+	Obstacle(int, int, int, int, float, Visual2D*);
 	void perspectiveProject();
-	void translate(float, float, float);
 	void move(int);
 	~Obstacle(void);
 };

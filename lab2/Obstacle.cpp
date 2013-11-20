@@ -1,7 +1,7 @@
 #include "Obstacle.h"
 
 
-Obstacle::Obstacle(int x, int y, int z, int i, float zMasina)
+Obstacle::Obstacle(int x, int y, int z, int i, float zMasina, Visual2D* playfield)
 {
 
 	this->x = x;
@@ -114,9 +114,73 @@ Obstacle::Obstacle(int x, int y, int z, int i, float zMasina)
 
 	}
 
-}
+	if (i == 2) {
 
-void Obstacle::addObject3D(Visual2D* playfield) {
+		inaltime = laturaPiramida;
+
+		//se deseneaza piramida
+		vector <Point3D*> vertices;
+		vector <Face*> faces;
+
+		//varfurile de jos
+		vertices.push_back(new Point3D(x,y,z));
+		vertices.push_back(new Point3D(x + laturaPiramida,y,z));
+		vertices.push_back(new Point3D(x + laturaPiramida,y,z + laturaPiramida));
+		vertices.push_back(new Point3D(x,y,z + laturaPiramida));
+		//varfurile de sus
+		vertices.push_back(new Point3D(x,y + laturaPiramida,z));
+		vertices.push_back(new Point3D(x + laturaPiramida,y + laturaPiramida,z));
+		vertices.push_back(new Point3D(x + laturaPiramida,y + laturaPiramida,z + laturaPiramida));
+		vertices.push_back(new Point3D(x,y + laturaPiramida,z + laturaPiramida));
+
+		//cele 6 fete
+		vector <int> contour;
+		//fata jos
+		contour.clear();
+		contour.push_back(0);
+		contour.push_back(1);
+		contour.push_back(2);
+		contour.push_back(3);
+		faces.push_back(new Face(contour));
+		//fata sus
+		contour.clear();
+		contour.push_back(4);
+		contour.push_back(5);
+		contour.push_back(6);
+		contour.push_back(7);
+		faces.push_back(new Face(contour));
+		//fata fata
+		contour.clear();
+		contour.push_back(0);
+		contour.push_back(1);
+		contour.push_back(5);
+		contour.push_back(4);
+		faces.push_back(new Face(contour));
+		//fata dreapta
+		contour.clear();
+		contour.push_back(1);
+		contour.push_back(2);
+		contour.push_back(6);
+		contour.push_back(5);
+		faces.push_back(new Face(contour));
+		//fata spate
+		contour.clear();
+		contour.push_back(2);
+		contour.push_back(3);
+		contour.push_back(7);
+		contour.push_back(6);
+		faces.push_back(new Face(contour));
+		//fata stanga
+		contour.clear();
+		contour.push_back(3);
+		contour.push_back(0);
+		contour.push_back(4);
+		contour.push_back(7);
+		faces.push_back(new Face(contour));
+
+		obstacle = new Object3D(vertices,faces,Color(1,0,0),false);
+
+	}
 
 	DrawingWindow::addObject3D_to_Visual2D(obstacle, playfield);
 
@@ -141,18 +205,12 @@ void Obstacle::perspectiveProject() {
 
 }
 
-void Obstacle::translate(float x, float y, float z) {
-
-	pasX += x;
-	pasY += y;
-	pasZ += z;
-
-}
-
 void Obstacle::move (int speed) {
 
 	if (z + pasZ < - 4 * laturaPiramida)
+	{
 		return;
+	}
 
 	while (speed--)
 	{

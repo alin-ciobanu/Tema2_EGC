@@ -17,8 +17,13 @@
 using namespace std;
 
 Visual2D *v2d_playfield;
+Visual2D *v2d_scoreboard;
 float margini = 30;
 float heightScoreBoard = 40;
+
+int i = 0;
+
+float width_playfield, height_playfield;
 
 float zMAX = 3900;
 float xSt, xMijl, xDr;
@@ -28,6 +33,9 @@ int speed;
 int speedMAX = 50;
 int oprire_inertie = 0;
 
+int score = 0;
+Color colorText = Color(18.0f/255.0f, 105.0f/255.0f, 99.0f/255.0f);
+
 Car *car;
 vector<Obstacle*> obstacles;
 
@@ -36,11 +44,15 @@ bool keyUpIsPressed;
 bool keyRightIsPressed;
 bool keyLeftIsPressed;
 
+int n = 0;
+
+Text *textScore;
+
 //functia care permite adaugarea de obiecte
 void DrawingWindow::init()
 {
 
-	FreeConsole(); // ascunde consola
+//	FreeConsole(); // ascunde consola
 
 	speed = 0;
 
@@ -48,7 +60,6 @@ void DrawingWindow::init()
 	xMijl = 350;
 	xDr = 550;
 
-	float width_playfield, height_playfield;
 	width_playfield = DrawingWindow::width - 2 * margini;
 	height_playfield = DrawingWindow::height - 2 * margini - heightScoreBoard;
 	v2d_playfield = new Visual2D
@@ -58,6 +69,13 @@ void DrawingWindow::init()
 		DrawingWindow::width - margini, DrawingWindow::height - margini);
 	v2d_playfield->cadruFereastra(Color(0, 1, 1));
 	addVisual2D(v2d_playfield);
+
+	v2d_scoreboard = new Visual2D
+		(0 + margini, 0 + DrawingWindow::height - margini - heightScoreBoard,
+		DrawingWindow::width - margini, DrawingWindow::height - margini, 
+		0 + margini, 0 + margini, 
+		DrawingWindow::width - margini, 0 + margini + heightScoreBoard);
+	addVisual2D(v2d_scoreboard);
 
 	Line2D *linieStg, *linieStgMijloc, *linieDrMijloc, *linieDr;
 	float borderSoseaSus = width_playfield / 5;
@@ -78,11 +96,15 @@ void DrawingWindow::init()
 	addObject2D_to_Visual2D(linieStgMijloc, v2d_playfield);
 	addObject2D_to_Visual2D(linieStg, v2d_playfield);
 
-	car = new Car();
-	obstacles.push_back(new Obstacle(xMijl, 0, zMAX, 1, car->z + car->pasZ));
+	Text* text1 = new Text("Score: ", Point2D(50, 660), colorText, GLUT_BITMAP_9_BY_15);
+	addText_to_Visual2D(text1, v2d_scoreboard);
 
+	string scoreT = to_string(score);
+	textScore = new Text(scoreT, Point2D(160, 660), colorText, GLUT_BITMAP_9_BY_15);
+	addText_to_Visual2D(textScore, v2d_scoreboard);
+
+	car = new Car();
 	car->addObject3D(v2d_playfield);
-	obstacles[0]->addObject3D(v2d_playfield);
 
 }
 
@@ -91,20 +113,51 @@ void DrawingWindow::init()
 void DrawingWindow::onIdle()
 {
 
-	if (frameNo > speed && speed != 0)
+	for (int i = 0; i < obstacles.size(); i++)
 	{
-		float obstX;
-		if ((car->x + car->pasX) < xSt)
+		if (car->hitsObstacle(obstacles[i]->x + obstacles[i]->pasX, 
+				obstacles[i]->x + obstacles[i]->pasX + obstacles[i]->laturaPiramida,
+				obstacles[i]->z + obstacles[i]->pasZ
+				))
+			{
+
+				Text* lose;
+				lose = new Text("Game over.", Point2D(200, 660), colorText, GLUT_BITMAP_9_BY_15);
+				addText_to_Visual2D(lose, v2d_scoreboard);
+
+				return;
+
+			}
+	}
+
+	score++;
+	if (speed < speedMAX && speed > 5)
+	{
+		speed += 5;
+	}
+
+	removeText_from_Visual2D(textScore, v2d_scoreboard);
+	string scoreT = to_string(score);
+	textScore = new Text(scoreT, Point2D(120, 660), colorText, GLUT_BITMAP_9_BY_15);
+	addText_to_Visual2D(textScore, v2d_scoreboard);
+
+	if (frameNo > speed + 10)
+	{
+		float obstX = xSt;
+		float carX = car->x + car->pasX;
+
+		if (carX < xSt)
 			obstX = xSt;
-		else if ((car->x + car->pasX) > xSt && (car->x + car->pasX) < xMijl)
+		else if (carX >= xSt && carX < xMijl)
 			obstX = xMijl;
 		else
 			obstX = xDr;
 
-		int type = (int) (ceil(car->x + car->pasX)) % 2;
+		int type = (int) (ceil(carX)) % 3;
 
-		obstacles.push_back(new Obstacle(obstX, 0, zMAX, type, car->z + car->pasZ));
-		obstacles[obstacles.size() - 1]->addObject3D(v2d_playfield);
+		Obstacle *obst = new Obstacle(obstX, 0, zMAX, type, car->z + car->pasZ, v2d_playfield);
+		obstacles.push_back(obst);
+		n++;
 		frameNo = 0;
 	}
 	else
@@ -150,13 +203,14 @@ void DrawingWindow::onIdle()
 			speed = 0;
 	}
 
-	car->move(speed);
+	car->move(speed, margini, width_playfield);
 	car->perspectiveProject();
 
-	for (int i = 0; i < obstacles.size(); i++)
+	for (int i = 0; i < n; i++)
 	{
 		obstacles[i]->move(speed);
 		obstacles[i]->perspectiveProject();
+
 	}
 
 }

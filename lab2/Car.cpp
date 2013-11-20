@@ -228,15 +228,38 @@ void Car::steerRight() {
 
 }
 
-void Car::move(int speed)
+void Car::move(int speed, float x, float width)
 {
 
 	while (speed--)
 	{
 		pasX -= sin(unghi);
+
+		if ((this->x + latime + pasX) < x + 50 || (this->x + pasX) > (x + width - 50)) {
+			pasX += sin(unghi);
+		}
 	}
 
 }
+
+bool Car::hitsObstacle(float xObstSt, float xObstDr, float zObst)
+{
+
+	if (zObst - z - pasZ < 11 && zObst - z - pasZ > -1)
+	{
+
+		if ((xObstSt >= (x + pasX) && xObstSt <= (x + pasX + latime))
+			|| (xObstDr >= (x + pasX) && xObstDr <= (x + pasX + latime))
+			)
+		{
+			return true;
+		}
+	}
+
+	return false;
+
+}
+
 
 Car::~Car(void)
 {
