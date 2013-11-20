@@ -11,7 +11,6 @@
 #include <iostream>
 #include <windows.h>
 
-
 #define PI 3.14159265358979323846
 #define inf 1000000
 using namespace std;
@@ -46,13 +45,13 @@ bool keyLeftIsPressed;
 
 int n = 0;
 
-Text *textScore;
+Text *textScore, *textSpeed;
 
 //functia care permite adaugarea de obiecte
 void DrawingWindow::init()
 {
 
-//	FreeConsole(); // ascunde consola
+	FreeConsole(); // ascunde consola
 
 	speed = 0;
 
@@ -103,6 +102,13 @@ void DrawingWindow::init()
 	textScore = new Text(scoreT, Point2D(160, 660), colorText, GLUT_BITMAP_9_BY_15);
 	addText_to_Visual2D(textScore, v2d_scoreboard);
 
+	Text* text2 = new Text("Speed: ", Point2D(200, 660), colorText, GLUT_BITMAP_9_BY_15);
+	addText_to_Visual2D(text2, v2d_scoreboard);
+
+	string speedT = to_string(speed);
+	textSpeed = new Text(speedT, Point2D(260, 660), colorText, GLUT_BITMAP_9_BY_15);
+	addText_to_Visual2D(textSpeed, v2d_scoreboard);
+
 	car = new Car();
 	car->addObject3D(v2d_playfield);
 
@@ -130,16 +136,24 @@ void DrawingWindow::onIdle()
 			}
 	}
 
-	score++;
+	if (speed > 5)
+	{
+		score++;
+	}
 	if (speed < speedMAX && speed > 5)
 	{
-		speed += 5;
+		score += 5;
 	}
 
 	removeText_from_Visual2D(textScore, v2d_scoreboard);
 	string scoreT = to_string(score);
 	textScore = new Text(scoreT, Point2D(120, 660), colorText, GLUT_BITMAP_9_BY_15);
 	addText_to_Visual2D(textScore, v2d_scoreboard);
+
+	removeText_from_Visual2D(textSpeed, v2d_scoreboard);
+	string speedT = to_string(speed);
+	textSpeed = new Text(speedT, Point2D(260, 660), colorText, GLUT_BITMAP_9_BY_15);
+	addText_to_Visual2D(textSpeed, v2d_scoreboard);
 
 	if (frameNo > speed + 10)
 	{

@@ -1,5 +1,5 @@
-Elemente de Grafica pe Calculator - Tema 1
-Geometry Wars
+﻿Elemente de Grafica pe Calculator - Tema 2
+Crazy Driver
 
 Nume: Ciobanu Alin Emanuel
 Grupa: 332 CC
